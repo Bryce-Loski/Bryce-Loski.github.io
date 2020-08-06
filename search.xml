@@ -17,8 +17,6 @@
           
           <category> kylin </category>
           
-          <category> 核心 </category>
-          
       </categories>
       
       
@@ -68,6 +66,8 @@
       
       
       <categories>
+          
+          <category> 大数据 </category>
           
           <category> spark </category>
           
@@ -123,6 +123,8 @@
       
       <categories>
           
+          <category> 大数据 </category>
+          
           <category> spark </category>
           
       </categories>
@@ -149,6 +151,8 @@
       
       
       <categories>
+          
+          <category> 大数据 </category>
           
           <category> spark </category>
           
