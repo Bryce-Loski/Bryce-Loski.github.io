@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Hive常用的函数汇总</title>
+      <link href="/2020/09/08/hive/hive%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%BD%E6%95%B0%E6%B1%87%E6%80%BB/"/>
+      <url>/2020/09/08/hive/hive%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%BD%E6%95%B0%E6%B1%87%E6%80%BB/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Hive常用的函数汇总"><a href="#Hive常用的函数汇总" class="headerlink" title="Hive常用的函数汇总"></a>Hive常用的函数汇总</h1><p>有时候忽然发现想一个函数忘记了。所以准备写一篇关于hive的函数总结。也总来平时让自己复习复习吧。</p><h2 id="常用的日期函数"><a href="#常用的日期函数" class="headerlink" title="常用的日期函数"></a>常用的日期函数</h2><p><font color="#dd0000">时间默认格式为：YYYY-MM-dd：</font><br /><br>unix_timestamp:返回当前或指定时间的时间戳<br>from_unixtime：将时间戳转为日期格式<br>current_date：当前日期<br>current_timestamp：当前的日期加时间<br>to_date：抽取日期部分<br>year：获取年<br>month：获取月<br>day：获取日<br>hour：获取时<br>minute：获取分<br>second：获取秒<br>weekofyear：当前时间是一年中的第几周<br>dayofmonth：当前时间是一个月中的第几天<br>months_between： 两个日期间的月份<br>add_months：日期加减月<br>datediff：两个日期相差的天数<br>date_add：日期加天数<br>date_sub：日期减天数<br>last_day：日期的当月的最后一天</p><h2 id="常用的取整函数"><a href="#常用的取整函数" class="headerlink" title="常用的取整函数"></a>常用的取整函数</h2><p>round： 四舍五入<br>ceil：  向上取整<br>floor： 向下取整</p><h2 id="常用字符串操作函数"><a href="#常用字符串操作函数" class="headerlink" title="常用字符串操作函数"></a>常用字符串操作函数</h2><p>upper： 转大写<br>lower： 转小写<br>length： 长度<br>trim：  前后去空格<br>lpad： 向左补齐，到指定长度<br>rpad：  向右补齐，到指定长度<br>regexp_replace： SELECT regexp_replace(‘100-200’, ‘(\d+)’, ‘num’) ；使用正则表达式匹配目标字符串，匹配成功后替换！</p><h2 id="常用的集合操作"><a href="#常用的集合操作" class="headerlink" title="常用的集合操作"></a>常用的集合操作</h2><p>size： 集合中元素的个数<br>map_keys： 返回map中的key<br>map_values: 返回map中的value<br>array_contains: 判断array中是否包含某个元素<br>sort_array： 将array中的元素排序</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大数据 </category>
+          
+          <category> hive </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Hive </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>flink流处理API总结</title>
       <link href="/2020/07/13/flink/flink%E6%B5%81%E5%A4%84%E7%90%86API%E6%80%BB%E7%BB%93/"/>
       <url>/2020/07/13/flink/flink%E6%B5%81%E5%A4%84%E7%90%86API%E6%80%BB%E7%BB%93/</url>
