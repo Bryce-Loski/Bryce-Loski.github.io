@@ -1,0 +1,213 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>权限访问clone的思考 | Bryce-Loski blogs</title><meta name="keywords" content="sleep&amp;wait"><meta name="author" content="Bryce-Loski"><meta name="copyright" content="Bryce-Loski"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="clone：这个方法估计都不陌生。object种的方法。 这个是object中的一个方法，我们都知道，任何类都会继承object这个类。首先提出一个问题： 12345678910public class Java_Access &amp;#123;	public static void main(String[] args) throws Exception &amp;#123;		Object user &#x3D; n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="权限访问clone的思考">
+<meta property="og:url" content="http://example.com/2019/06/15/java/%E6%9D%83%E9%99%90%E8%AE%BF%E9%97%AEclone%E7%9A%84%E6%80%9D%E8%80%83/index.html">
+<meta property="og:site_name" content="Bryce-Loski blogs">
+<meta property="og:description" content="clone：这个方法估计都不陌生。object种的方法。 这个是object中的一个方法，我们都知道，任何类都会继承object这个类。首先提出一个问题： 12345678910public class Java_Access &amp;#123;	public static void main(String[] args) throws Exception &amp;#123;		Object user &#x3D; n">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg">
+<meta property="article:published_time" content="2019-06-15T10:10:37.000Z">
+<meta property="article:modified_time" content="2021-04-30T01:57:32.264Z">
+<meta property="article:author" content="Bryce-Loski">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="clone">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg"><link rel="shortcut icon" href="/img/Head.png"><link rel="canonical" href="http://example.com/2019/06/15/java/%E6%9D%83%E9%99%90%E8%AE%BF%E9%97%AEclone%E7%9A%84%E6%80%9D%E8%80%83/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?https://hm.baidu.com/hm.js?d2d33f2ee9dfbd2b934bb4544de7c33f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":200,"languages":{"author":"作者: Bryce-Loski","link":"链接: ","source":"来源: Bryce-Loski blogs","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'mediumZoom',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: false,
+  postUpdate: '2021-04-30 09:57:32'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/comment_bg.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">25</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">20</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Bryce-Loski blogs</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">权限访问clone的思考</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2021-04-30T01:57:32.264Z" title="undefined 2021-04-30 09:57:32">2021-04-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java/">java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">412</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><strong>clone</strong>：这个方法估计都不陌生。object种的方法。</p>
+<p><img src="https://img-blog.csdnimg.cn/20200525200317218.png#pic_center" alt="clone方法"><br>这个是object中的一个方法，我们都知道，任何类都会继承object这个类。<br>首先提出一个问题：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Java_Access</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		Object user = <span class="keyword">new</span> User();</span><br><span class="line">		user.clone();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个clone的方法会报错吗？<br>如果你的答案时肯定的，且清晰的知道为什么，就可以愉快的跳过下面的内容。<br>如果你不知道会不会报错。那么就接着往下看。</p>
+<p>答案：这个在编译的时候就会出错。</p>
+<hr>
+<p>分析：</p>
+<p>这里就涉及到clone方法访问的权限：<br>protected:同类,同包或者子类<br>当我们访问一个方法的时候一共需要遵循两个原则：<br><strong>1.方法的提供者是否符合要求<br>2.方法的调用者是否符合要求</strong><br>首先抛出两个问题：</p>
+<blockquote>
+<p>1.clone方法的调用者是否是User<br>2.User所继承的父类Object是不是Java_Access的父类</p>
+</blockquote>
+<p>在这个方法中以clone为例：<br>①：方法的提供者：java.lang.Object<br>方法的调用者：xxx.xxx.<strong>Java_Access</strong><br>这里方法的调用者并不是User。</p>
+<p><strong>而user.clone()的意思完整的来说：Java_Access的main方法中，创建了一个User对象，并且调用了user对象的clone方法。</strong><br>所以，clone并不符合同类或者同包的概念。</p>
+<hr>
+<p>②：这里clone方法的提供者Object和Java_Access并没有父子关系</p>
+<p><img src="https://img-blog.csdnimg.cn/20200525203147371.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0JyeWNlX0xvc2tp,size_16,color_FFFFFF,t_70#pic_center" alt="clone的图片"><br>这里用一张图来表示。java_Access和User都有一个名叫Object的父类，但是这两个Object的之间并没有意点关系。所以，Java_Access并不能调用User父类Object中clone的方法。</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/clone/">clone</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2019/06/13/java/JAVA%E5%87%A0%E9%81%93%E5%B8%B8%E8%A7%81%E7%9A%84%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98/"><img class="prev-cover" src="https://yeas.fun/wp-content/uploads/2020/04/java.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">JAVA几道基础常见的面试题</div></div></a></div><div class="next-post pull-right"><a href="/2019/06/15/java/java%E8%AF%BB%E5%8F%96%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/"><img class="next-cover" src="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">java读取配置文件的几种方式</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2019/06/16/JDBC/Druid连接池配置信息解释/" title="Druid连接池配置信息解释"><img class="cover" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSSeGCZx0IF4wc68OAdRbR1R2Use3HMmnVDkg&usqp=CAU" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-06-16</div><div class="title">Druid连接池配置信息解释</div></div></a></div><div><a href="/2019/06/13/java/JAVA几道常见的基础面试题/" title="JAVA几道基础常见的面试题"><img class="cover" src="https://yeas.fun/wp-content/uploads/2020/04/java.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-06-13</div><div class="title">JAVA几道基础常见的面试题</div></div></a></div><div><a href="/2019/06/15/java/java读取配置文件的几种方式/" title="java读取配置文件的几种方式"><img class="cover" src="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-06-15</div><div class="title">java读取配置文件的几种方式</div></div></a></div><div><a href="/2019/08/23/java/关于java中的重写/" title="关于java中的重写"><img class="cover" src="https://cdn.app.compendium.com/uploads/user/e7c690e8-6ff9-102a-ac6d-e4aebca50425/4452fa2b-5403-4904-bb40-a25923e40aca/File/3ca5b0afbb6683f2981dadb786a3e88a/5462_744x492.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-08-23</div><div class="title">关于java中的重写</div></div></a></div><div><a href="/2019/07/14/java/关于sleep与wait的思考/" title="关于sleep与wait的思考"><img class="cover" src="https://i.loli.net/2020/06/04/ndT4s9iJcFzf18Z.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-07-14</div><div class="title">关于sleep与wait的思考</div></div></a></div><div><a href="/2019/12/14/java/hash/Hashmap扩容机制/" title="Hashmap扩容机制"><img class="cover" src="https://i.loli.net/2020/06/04/ndT4s9iJcFzf18Z.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2019-12-14</div><div class="title">Hashmap扩容机制</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/comment_bg.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">Bryce-Loski</div><div class="author-info__description">Bryce-Loski blogs</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">25</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">20</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Bryce-Loski"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/Bryce-Loski" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:137718521@qq.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/01/17/dataMall/%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93%E7%9A%84%E6%B2%BB%E7%90%86/" title="数仓治理与建设"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRdD6mB30vZ30vaMSBBfA-5Q67JYwD7WrDE4Q&amp;usqp=CAU" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数仓治理与建设"/></a><div class="content"><a class="title" href="/2022/01/17/dataMall/%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93%E7%9A%84%E6%B2%BB%E7%90%86/" title="数仓治理与建设">数仓治理与建设</a><time datetime="2022-01-17T09:31:30.000Z" title="发表于 2022-01-17 17:31:30">2022-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/28/hive/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1mapJoin%E5%AF%BC%E8%87%B4%E7%9A%84%E5%89%AF%E4%BD%9C%E7%94%A8/" title="记录一次mapJoin导致的副作用"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzuDiPA1y_dy58z0aGvV01RFSG068QhN3Ceqqaw6m413pjC8s&amp;s" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记录一次mapJoin导致的副作用"/></a><div class="content"><a class="title" href="/2020/10/28/hive/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1mapJoin%E5%AF%BC%E8%87%B4%E7%9A%84%E5%89%AF%E4%BD%9C%E7%94%A8/" title="记录一次mapJoin导致的副作用">记录一次mapJoin导致的副作用</a><time datetime="2020-10-27T17:14:46.000Z" title="发表于 2020-10-28 01:14:46">2020-10-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/10/27/hive/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1hive%E4%BC%98%E5%8C%96%E7%9A%84%E5%85%A8%E8%BF%87%E7%A8%8B/" title="记录一次hive优化的全过程"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzuDiPA1y_dy58z0aGvV01RFSG068QhN3Ceqqaw6m413pjC8s&amp;s" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记录一次hive优化的全过程"/></a><div class="content"><a class="title" href="/2020/10/27/hive/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1hive%E4%BC%98%E5%8C%96%E7%9A%84%E5%85%A8%E8%BF%87%E7%A8%8B/" title="记录一次hive优化的全过程">记录一次hive优化的全过程</a><time datetime="2020-10-27T04:00:30.030Z" title="发表于 2020-10-27 12:00:30">2020-10-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/09/08/hive/hive%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%BD%E6%95%B0%E6%B1%87%E6%80%BB/" title="Hive常用的函数汇总"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzuDiPA1y_dy58z0aGvV01RFSG068QhN3Ceqqaw6m413pjC8s&amp;s" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hive常用的函数汇总"/></a><div class="content"><a class="title" href="/2020/09/08/hive/hive%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%BD%E6%95%B0%E6%B1%87%E6%80%BB/" title="Hive常用的函数汇总">Hive常用的函数汇总</a><time datetime="2020-09-08T14:00:17.000Z" title="发表于 2020-09-08 22:00:17">2020-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/07/13/flink/flink%E6%B5%81%E5%A4%84%E7%90%86API%E6%80%BB%E7%BB%93/" title="flink流处理API总结"><img src="https://flink.apache.org/img/flink-header-logo.svg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="flink流处理API总结"/></a><div class="content"><a class="title" href="/2020/07/13/flink/flink%E6%B5%81%E5%A4%84%E7%90%86API%E6%80%BB%E7%BB%93/" title="flink流处理API总结">flink流处理API总结</a><time datetime="2020-07-13T06:10:37.000Z" title="发表于 2020-07-13 14:10:37">2020-07-13</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Bryce-Loski</div><div class="footer_custom_text">Hi,this is bryce blog!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'gXnAgz5vfSj3tVngbMkf6AUg-gzGzoHsz',
+      appKey: '9sjPOmBH9q99tqRsfItg6Ou9',
+      placeholder: '有问题记得留下mail',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (false) { 
+      initData.requiredFields= (''.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign(initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script></div></body></html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spark性能优化 | Bryce-Loski blogs</title><meta name="keywords" content="Spark性能优化"><meta name="author" content="Bryce-Loski"><meta name="copyright" content="Bryce-Loski"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Spark性能优化在大数据处理过程中，涉及到最多的就是性能优化。这个也是大数据场景的重点与难点。本文将从常见的几个方面与实现spark的优化 常规性能调优1.1 常规性能调优一：最优资源配置&amp;emsp;&amp;emsp;Spark性能调优的第一步，就是为任务分配更多的资源，在一定范围内，增加资源的分配与性能的提升是成正比的，实现了最优的资源配置后，在此基础上再考虑进行后面论述的性能调优策略。&amp;emsp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark性能优化">
+<meta property="og:url" content="http://example.com/2020/07/04/spark/spark%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="Bryce-Loski blogs">
+<meta property="og:description" content="Spark性能优化在大数据处理过程中，涉及到最多的就是性能优化。这个也是大数据场景的重点与难点。本文将从常见的几个方面与实现spark的优化 常规性能调优1.1 常规性能调优一：最优资源配置&amp;emsp;&amp;emsp;Spark性能调优的第一步，就是为任务分配更多的资源，在一定范围内，增加资源的分配与性能的提升是成正比的，实现了最优的资源配置后，在此基础上再考虑进行后面论述的性能调优策略。&amp;emsp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.terrapinn-cdn.com/exhibition/spark/img/spark300.png">
+<meta property="article:published_time" content="2020-07-04T10:10:37.000Z">
+<meta property="article:modified_time" content="2021-04-30T01:58:13.117Z">
+<meta property="article:author" content="Bryce-Loski">
+<meta property="article:tag" content="大数据">
+<meta property="article:tag" content="spark">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.terrapinn-cdn.com/exhibition/spark/img/spark300.png"><link rel="shortcut icon" href="/img/Head.png"><link rel="canonical" href="http://example.com/2020/07/04/spark/spark%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?https://hm.baidu.com/hm.js?d2d33f2ee9dfbd2b934bb4544de7c33f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":200,"languages":{"author":"作者: Bryce-Loski","link":"链接: ","source":"来源: Bryce-Loski blogs","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'mediumZoom',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2021-04-30 09:58:13'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/comment_bg.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">35</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">25</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">20</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://www.terrapinn-cdn.com/exhibition/spark/img/spark300.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Bryce-Loski blogs</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Spark性能优化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon fas fa-history"></i><span class="post-meta-label">更新于</span><time datetime="2021-04-30T01:58:13.117Z" title="undefined 2021-04-30 09:58:13">2021-04-30</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/spark/">spark</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">8.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>28分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Spark性能优化"><a href="#Spark性能优化" class="headerlink" title="Spark性能优化"></a>Spark性能优化</h1><p>在大数据处理过程中，涉及到最多的就是性能优化。这个也是大数据场景的重点与难点。<br>本文将从常见的几个方面与实现spark的优化</p>
+<h2 id="常规性能调优"><a href="#常规性能调优" class="headerlink" title="常规性能调优"></a>常规性能调优</h2><h3 id="1-1-常规性能调优一：最优资源配置"><a href="#1-1-常规性能调优一：最优资源配置" class="headerlink" title="1.1 常规性能调优一：最优资源配置"></a>1.1 常规性能调优一：最优资源配置</h3><p>&emsp;&emsp;Spark性能调优的第一步，就是为任务分配更多的资源，在一定范围内，增加资源的分配与性能的提升是成正比的，实现了最优的资源配置后，在此基础上再考虑进行后面论述的性能调优策略。<br>&emsp;&emsp; 资源的分配在使用脚本提交Spark任务时进行指定，标准的Spark任务提交脚本如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">bin/spark-submit \</span><br><span class="line">--class com.atguigu.spark.Analysis \</span><br><span class="line">--master yarn</span><br><span class="line">--deploy-mode cluster</span><br><span class="line">--num-executors 80 \</span><br><span class="line">--driver-memory 6g \</span><br><span class="line">--executor-memory 6g \</span><br><span class="line">--executor-cores 3 \</span><br><span class="line">/usr/opt/modules/spark/jar/spark.jar \</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp; 可以进行分配的资源如表所示：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>–num-executors</td>
+<td align="left">配置Executor的数量</td>
+</tr>
+<tr>
+<td>–driver-memory</td>
+<td align="left">配置Driver内存（影响不大）</td>
+</tr>
+<tr>
+<td>–executor-memory</td>
+<td align="left">配置每个Executor的CPU core数量</td>
+</tr>
+</tbody></table>
+<p>调节原则：尽量将任务分配的资源调节到可以使用的资源的最大限度。<br>对于具体资源的分配，我们分别讨论Spark的两种Cluster运行模式：</p>
+<ol>
+<li>第一种是Spark Standalone模式，你在提交任务前，一定知道或者可以从运维部门获取到你可以使用的资源情况，在编写submit脚本的时候，就根据可用的资源情况进行资源的分配，比如说集群有15台机器，每台机器为8G内存，2个CPU core，那么就指定15个Executor，每个Executor分配8G内存，2个CPU core。</li>
+<li>第二种是Spark Yarn模式，由于Yarn使用资源队列进行资源的分配和调度，在编写submit脚本的时候，就根据Spark作业要提交到的资源队列，进行资源的分配，比如资源队列有400G内存，100个CPU core，那么指定50个Executor，每个Executor分配8G内存，2个CPU core。<br>对各项资源进行了调节后，得到的性能提升会有如下表现：<table>
+<thead>
+<tr>
+<th>名称</th>
+<th align="left">解析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>增加Executor·个数</td>
+<td align="left">在资源允许的情况下，增加Executor的个数可以提高执行task的并行度。比如有4个Executor，每个Executor有2个CPU core，那么可以并行执行8个task，如果将Executor的个数增加到8个（资源允许的情况下），那么可以并行执行16个task，此时的并行能力提升了一倍。</td>
+</tr>
+<tr>
+<td>增加每个Executor的CPU core个数</td>
+<td align="left">在资源允许的情况下，增加每个Executor的Cpu core个数，可以提高执行task的并行度。比如有4个Executor，每个Executor有2个CPU core，那么可以并行执行8个task，如果将每个Executor的CPU core个数增加到4个（资源允许的情况下），那么可以并行执行16个task，此时的并行能力提升了一倍。</td>
+</tr>
+<tr>
+<td>增加每个Executor的内存量</td>
+<td align="left">在资源允许的情况下，增加每个Executor的内存量以后，对性能的提升有三点：<br>1.可以缓存更多的数据（即对RDD进行cache），写入磁盘的数据相应减少，甚至可以不写入磁盘，减少了可能的磁盘IO；<br>2. 可以为shuffle操作提供更多内存，即有更多空间来存放reduce端拉取的数据，写入磁盘的数据相应减少，甚至可以不写入磁盘，减少了可能的磁盘IO；<br>3. 可以为task的执行提供更多内存，在task的执行过程中可能创建很多对象，内存较小时会引发频繁的GC，增加内存后，可以避免频繁的GC，提升整体性能。</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<p>**生产环境Spark submit脚本配置 ** </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">bin/spark-submit \</span><br><span class="line">--class com.atguigu.spark.WordCount \</span><br><span class="line">--master yarn\</span><br><span class="line">--deploy-mode cluster\</span><br><span class="line">--num-executors 80 \</span><br><span class="line">--driver-memory 6g \</span><br><span class="line">--executor-memory 6g \</span><br><span class="line">--executor-cores 3 \</span><br><span class="line">--queue root.default \</span><br><span class="line">--conf spark.yarn.executor.memoryOverhead=2048 \</span><br><span class="line">--conf spark.core.connection.ack.wait.timeout=300 \</span><br><span class="line">/usr/<span class="built_in">local</span>/spark/spark.jar</span><br></pre></td></tr></table></figure>
+<p>参数配置参考值：</p>
+<ul>
+<li>–num-executors：50~100</li>
+<li>–driver-memory：1G~5G</li>
+<li>–executor-memory:6G~10G</li>
+<li>–executor-core: 3</li>
+<li>master:实际生产环境一定使用yarn</li>
+</ul>
+<h3 id="1-2-常规性能调优二：RDD优化"><a href="#1-2-常规性能调优二：RDD优化" class="headerlink" title="1.2 常规性能调优二：RDD优化"></a>1.2 常规性能调优二：RDD优化</h3><ol>
+<li>RDD复用<br>在对RDD进行算子时，要避免相同的算子和计算逻辑之下对RDD进行重复的计算<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[HDFS] --&gt;B[RDD1]</span><br><span class="line">    B --&gt;|重复| C[RDD2]</span><br><span class="line">    B --&gt;|重复| D[RDD2]</span><br><span class="line">    C --&gt;|不同| E[RDD3]</span><br><span class="line">    D --&gt;|不同| F[RDD4]</span><br></pre></td></tr></table></figure>
+对上图中的RDD计算架构进行修改，得到如下图所示的优化结果：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[HDFS] --&gt;B[RDD1]</span><br><span class="line">    B --&gt; C[RDD2]</span><br><span class="line">    C --&gt;|不同| E[RDD3]</span><br><span class="line">    C --&gt;|不同| F[RDD4]</span><br></pre></td></tr></table></figure>
+在生产环境下，有着大量的RDD转化，就需要先预架构RDD，看那些RDD可以得到复用</li>
+<li>RDD持久化<br>在Spark中，当多次对同一个RDD执行算子操作时，每一次都会对这个RDD以之前的父RDD重新计算一次，这种情况是必须要避免的，对同一个RDD的重复计算是对资源的极大浪费，因此，必须对多次使用的RDD进行持久化，通过持久化将公共RDD的数据缓存到内存/磁盘中，之后对于公共RDD的计算都会从内存/磁盘中直接获取RDD数据。<br>对于RDD的持久化，有两点需要说明：<ol>
+<li>RDD的持久化是可以进行序列化的，当内存无法将RDD的数据完整的进行存放的时候，可以考虑使用序列化的方式减小数据体积，将数据完整存储在内存中。</li>
+<li>如果对于数据的可靠性要求很高，并且内存充足，可以使用副本机制，对RDD数据进行持久化。当持久化启用了复本机制时，对于持久化的每个数据单元都存储一个副本，放在其他节点上面，由此实现数据的容错，一旦一个副本数据丢失，不需要重新计算，还可以使用另外一个副本。</li>
+</ol>
+</li>
+<li>RDD尽可能早的进行filter操作<br>获取到初始RDD后，应该考虑尽早地过滤掉不需要的数据，进而减少对内存的占用，从而提升Spark作业的运行效率。<h3 id="1-3-常规性能调优三：并行度调节"><a href="#1-3-常规性能调优三：并行度调节" class="headerlink" title="1.3 常规性能调优三：并行度调节"></a>1.3 常规性能调优三：并行度调节</h3>&emsp;&emsp;Spark作业中的并行度指各个stage的task的数量。<br>&emsp;&emsp;如果并行度设置不合理而导致并行度过低，会导致资源的极大浪费，例如，20个Executor，每个Executor分配3个CPU core，而Spark作业有40个task，这样每个Executor分配到的task个数是2个，这就使得每个Executor有一个CPU core空闲，导致资源的浪费。<br>&emsp;&emsp;理想的并行度设置，应该是让并行度与资源相匹配，简单来说就是在资源允许的前提下，并行度要设置的尽可能大，达到可以充分利用集群资源。合理的设置并行度，可以提升整个Spark作业的性能和运行速度。<br>&emsp;&emsp;Spark<strong>官方推荐，task数量应该设置为Spark作业总CPU core数量的2~3倍。</strong>之所以没有推荐task数量与CPU core总数相等，是因为task的执行时间不同，有的task执行速度快而有的task执行速度慢，如果task数量与CPU core总数相等，那么执行快的task执行完成后，会出现CPU core空闲的情况。如果task数量设置为CPU core总数的2~3倍，那么一个task执行完毕后，CPU core会立刻执行下一个task，降低了资源的浪费，同时提升了Spark作业运行的效率。<br>Spark作业并行度的设置如下所示:</li>
+</ol>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">	.set(<span class="string">&quot;spark.default.parallelism&quot;</span>, <span class="string">&quot;500&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="1-4-常规性能调优四：广播大变量"><a href="#1-4-常规性能调优四：广播大变量" class="headerlink" title="1.4 常规性能调优四：广播大变量"></a>1.4 常规性能调优四：广播大变量</h3><p>&emsp;&emsp;默认情况下，task中的算子中如果使用了外部的变量，每个task都会获取一份变量的复本，这就造成了内存的极大消耗。一方面，如果后续对RDD进行持久化，可能就无法将RDD数据存入内存，只能写入磁盘，磁盘IO将会严重消耗性能；另一方面，task在创建对象的时候，也许会发现堆内存无法存放新创建的对象，这就会导致频繁的GC，GC会导致工作线程停止，进而导致Spark暂停工作一段时间，严重影响Spark性能。<br>&emsp;&emsp;假设当前任务配置了20个Executor，指定500个task，有一个20M的变量被所有task共用，此时会在500个task中产生500个副本，耗费集群10G的内存，如果使用了广播变量， 那么每个Executor保存一个副本，一共消耗400M内存，内存消耗减少了5倍。<br>广播变量在每个Executor保存一个副本，此Executor的所有task共用此广播变量，这让变量产生的副本数量大大减少。<br>&emsp;&emsp;在初始阶段，广播变量只在Driver中有一份副本。task在运行的时候，想要使用广播变量中的数据，此时首先会在自己本地的Executor对应的BlockManager中尝试获取变量，如果本地没有，BlockManager就会从Driver或者其他节点的BlockManager上远程拉取变量的复本，并由本地的BlockManager进行管理；之后此Executor的所有task都会直接从本地的BlockManager中获取变量。</p>
+<h3 id="1-5-常规性能调优五：Kryo序列化"><a href="#1-5-常规性能调优五：Kryo序列化" class="headerlink" title="1.5 常规性能调优五：Kryo序列化"></a>1.5 常规性能调优五：Kryo序列化</h3><p>　　默认情况下，Spark使用Java的序列化机制。Java的序列化机制使用方便，不需要额外的配置，在算子中使用的变量实现Serializable接口即可，但是，Java序列化机制的效率不高，序列化速度慢并且序列化后的数据所占用的空间依然较大。<br>　　Kryo序列化机制比Java序列化机制性能提高10倍左右，Spark之所以没有默认使用Kryo作为序列化类库，是因为它不支持所有对象的序列化，同时Kryo需要用户在使用前注册需要序列化的类型，不够方便，但从Spark 2.0.0版本开始，<font color=red>简单类型、简单类型数组、字符串类型的Shuffling RDDs 已经默认使用Kryo序列化方式了。</font></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyKryoRegistrator</span> <span class="keyword">implements</span> <span class="title">KryoRegistrator</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerClasses</span><span class="params">(Kryo kryo)</span></span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">    kryo.register(StartupReportLogs.class);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置Kryo序列化方式的实例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建SparkConf对象</span></span><br><span class="line">val conf = <span class="keyword">new</span> SparkConf().setMaster(…).setAppName(…)</span><br><span class="line"><span class="comment">//使用Kryo序列化库，如果要使用Java序列化库，需要把该行屏蔽掉</span></span><br><span class="line">conf.set(<span class="string">&quot;spark.serializer&quot;</span>, <span class="string">&quot;org.apache.spark.serializer.KryoSerializer&quot;</span>);  </span><br><span class="line"><span class="comment">//在Kryo序列化库中注册自定义的类集合，如果要使用Java序列化库，需要把该行屏蔽掉</span></span><br><span class="line">conf.set(<span class="string">&quot;spark.kryo.registrator&quot;</span>, <span class="string">&quot;atguigu.com.MyKryoRegistrator&quot;</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="1-6-常规性能调优六：调节本地化等待时长"><a href="#1-6-常规性能调优六：调节本地化等待时长" class="headerlink" title="1.6 常规性能调优六：调节本地化等待时长"></a>1.6 常规性能调优六：调节本地化等待时长</h3><p>　　Spark作业运行过程中，Driver会对每一个stage的task进行分配。根据Spark的task分配算法，Spark希望task能够运行在它要计算的数据算在的节点（数据本地化思想），这样就可以避免数据的网络传输。通常来说，task可能不会被分配到它处理的数据所在的节点，因为这些节点可用的资源可能已经用尽，此时，Spark会等待一段时间，默认3s，如果等待指定时间后仍然无法在指定节点运行，那么会自动降级，尝试将task分配到比较差的本地化级别所对应的节点上，比如将task分配到离它要计算的数据比较近的一个节点，然后进行计算，如果当前级别仍然不行，那么继续降级。<br>　　当task要处理的数据不在task所在节点上时，会发生数据的传输。task会通过所在节点的BlockManager获取数据，BlockManager发现数据不在本地时，户通过网络传输组件从数据所在节点的BlockManager处获取数据。<br>　　网络传输数据的情况是我们不愿意看到的，大量的网络传输会严重影响性能，因此，我们希望通过调节本地化等待时长，如果在等待时长这段时间内，目标节点处理完成了一部分task，那么当前的task将有机会得到执行，这样就能够改善Spark作业的整体性能。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th align="left">解析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PROCESS_LOCAL</td>
+<td align="left">进程本地化，task和数据在同一个Executor中，性能最好。</td>
+</tr>
+<tr>
+<td>NODE_LOCAL</td>
+<td align="left">节点本地化，task和数据在同一个节点中，但是task和数据不在同一个Executor中，数据需要在进程间进行传输。</td>
+</tr>
+<tr>
+<td>RACK_LOCAL</td>
+<td align="left">机架本地化，task和数据在同一个机架的两个节点上，数据需要通过网络在节点之间进行传输。</td>
+</tr>
+<tr>
+<td>NO_PREF</td>
+<td align="left">对于task来说，从哪里获取都一样，没有好坏之分。</td>
+</tr>
+<tr>
+<td>ANY</td>
+<td align="left">task和数据可以在集群的任何地方，而且不在一个机架中，性能最差。</td>
+</tr>
+<tr>
+<td>在Spark项目开发阶段，可以使用client模式对程序进行测试，此时，可以在本地看到比较全的日志信息，日志信息中有明确的task数据本地化的级别，如果大部分都是PROCESS_LOCAL，那么就无需进行调节，但是如果发现很多的级别都是NODE_LOCAL、ANY，那么需要对本地化的等待时长进行调节，通过延长本地化等待时长，看看task的本地化级别有没有提升，并观察Spark作业的运行时间有没有缩短。</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td>注意，过犹不及，不要将本地化等待时长延长地过长，导致因为大量的等待时长，使得Spark作业的运行时间反而增加了。</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td>Spark本地化等待时长的设置如代码所示：</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.locality.wait&quot;</span>, <span class="string">&quot;6&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="算子调优"><a href="#算子调优" class="headerlink" title="算子调优"></a>算子调优</h2><h3 id="2-1-算子调优一：mapPartitions"><a href="#2-1-算子调优一：mapPartitions" class="headerlink" title="2.1 算子调优一：mapPartitions"></a>2.1 算子调优一：mapPartitions</h3><p>　　普通的map算子对RDD中的每一个元素进行操作，而mapPartitions算子对RDD中每一个分区进行操作。如果是普通的map算子，假设一个partition有1万条数据，那么map算子中的function要执行1万次，也就是对每个元素进行操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[单条数据]</span><br><span class="line">B[单条数据]</span><br><span class="line">C[单条数据]</span><br><span class="line">E[单条数据]</span><br><span class="line">F[单条数据]</span><br><span class="line">G[单条数据]</span><br><span class="line">    A --&gt; D[task function]</span><br><span class="line">    B --&gt; D[task function]</span><br><span class="line">    C --&gt; D[task function]</span><br><span class="line">    E --&gt; D[task function]</span><br><span class="line">    F --&gt; D[task function]</span><br><span class="line">    G --&gt; D[task function]</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+<p>　　如果是mapPartition算子，由于一个task处理一个RDD的partition，那么一个task只会执行一次function，function一次接收所有的partition数据，效率比较高。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[分区数据] --&gt; B(task function)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>　　比如，当要把RDD中的所有数据通过JDBC写入数据，如果使用map算子，那么需要对RDD中的每一个元素都创建一个数据库连接，这样对资源的消耗很大，如果使用mapPartitions算子，那么针对一个分区的数据，只需要建立一个数据库连接。<br>　　mapPartitions算子也存在一些缺点：对于普通的map操作，一次处理一条数据，如果在处理了2000条数据后内存不足，那么可以将已经处理完的2000条数据从内存中垃圾回收掉；但是如果使用mapPartitions算子，但数据量非常大时，function一次处理一个分区的数据，如果一旦内存不足，此时无法回收内存，就可能会OOM，即内存溢出。<br>　　因此，mapPartitions算子适用于数据量不是特别大的时候，此时使用mapPartitions算子对性能的提升效果还是不错的。（当数据量很大的时候，一旦使用mapPartitions算子，就会直接OOM）<br>　　在项目中，应该首先估算一下RDD的数据量、每个partition的数据量，以及分配给每个Executor的内存资源，如果资源允许，可以考虑使用mapPartitions算子代替map。</p>
+<h3 id="2-2-算子调优二：foreachPartition优化数据库操作"><a href="#2-2-算子调优二：foreachPartition优化数据库操作" class="headerlink" title="2.2 算子调优二：foreachPartition优化数据库操作"></a>2.2 算子调优二：foreachPartition优化数据库操作</h3><p>　　在生产环境中，通常使用foreachPartition算子来完成数据库的写入，通过foreachPartition算子的特性，可以优化写数据库的性能。<br>　　如果使用foreach算子完成数据库的操作，由于foreach算子是遍历RDD的每条数据，因此，每条数据都会建立一个数据库连接，这是对资源的极大浪费，因此，对于写数据库操作，我们应当使用foreachPartition算子。<br>　　与mapPartitions算子非常相似，foreachPartition是将RDD的每个分区作为遍历对象，一次处理一个分区的数据，也就是说，如果涉及数据库的相关操作，一个分区的数据只需要创建一次数据库连接，如图所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[分区数据] --&gt;B[task function]</span><br><span class="line">    B --&gt; c[数据连接]</span><br><span class="line">    c --&gt; d[数据库]</span><br></pre></td></tr></table></figure>
+<p>使用了foreachPartition算子后，可以获得以下的性能提升：</p>
+<ul>
+<li>对于我们写的function函数，一次处理一整个分区的数据；</li>
+<li>对于一个分区内的数据，创建唯一的数据库连接；</li>
+<li>只需要向数据库发送一次SQL预计和多组参数<br>在生产环境中，全部都会使用foreachPartition算子完成数据库操作。foreachPartition算子存在一个问题，与mapPatitions算子类似，如果一个分区的数据量特别大，可能会造成OOM。即内存溢出。<h3 id="2-3-算子调优三：filter与coalesce的配合使用"><a href="#2-3-算子调优三：filter与coalesce的配合使用" class="headerlink" title="2.3 算子调优三：filter与coalesce的配合使用"></a>2.3 算子调优三：filter与coalesce的配合使用</h3>　　在Spark任务中我们经常会使用filter算子完成RDD中数据的过滤，在任务初始阶段，从各个分区中加载到的数据量是相近的，但是一旦进过filter过滤后，每个分区的数据量有可能会存在较大差异，如图所示：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[分区数据 1000条]</span><br><span class="line">B[分区数据 1000条]</span><br><span class="line">C[分区数据 1000条]</span><br><span class="line">    A --&gt; D[filter]</span><br><span class="line">    B --&gt; D[filter]</span><br><span class="line">    C --&gt; D[filter]</span><br><span class="line">    D --&gt; E[分区数据 300条]</span><br><span class="line">    D --&gt; F[分区数据 100条]</span><br><span class="line">    D --&gt; G[分区数据 800条]</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+根据图中信息我们可以发现两个问题：</li>
+</ul>
+<ol>
+<li>每个partition的数据量变小了，如果还按照之前与partition相等的task个数去处理当前数据，有点浪费task的计算资源；</li>
+<li>每个partition的数据量不一样，会导致后面的每个task处理每个partition数据的时候，每个task要处理的数据量不同，这很有可能导致数据倾斜问题。<br>　　每个task要处理的数据量不同，这很有可能导致数据倾斜问题。<br>如上图所示，第二个分区的数据过滤后只剩100条，而第三个分区的数据过滤后剩下800条，在相同的处理逻辑下，第二个分区对应的task处理的数据量与第三个分区对应的task处理的数据量差距达到了8倍，这也会导致运行速度可能存在数倍的差距，这也就是数据倾斜问题。<br>针对上述的两个问题，我们分别进行分析：</li>
+</ol>
+<ul>
+<li>针对第一个问题，既然分区的数据量变小了，我们希望可以对分区数据进行重新分配，比如将原来4个分区的数据转化到2个分区中，这样只需要用后面的两个task进行处理即可，避免了资源的浪费。</li>
+<li>针对第二个问题，解决方法和第一个问题的解决方法非常相似，对分区数据重新分配，让每个partition中的数据量差不多，这就避免了数据倾斜问题<br>那么具体应该如何实现上面的解决思路？我们需要coalesce算子。<br>repartition与coalesce都可以用来进行重分区，其中repartition只是coalesce接口中shuffle为true的简易实现，coalesce默认情况下不进行shuffle，但是可以通过参数进行设置。<br>假设我们希望将原本的分区个数A通过重新分区变为B，那么有以下几种情况：</li>
+<li> <strong>A &gt; B（多数分区合并为少数分区）</strong></li>
+</ul>
+<ol>
+<li>   A与B相差值不大<br>此时使用coalesce即可，无需shuffle过程。</li>
+<li>   A与B相差值很大<br>此时可以使用coalesce并且不启用shuffle过程，但是会导致合并过程性能低下，所以推荐设置coalesce的第二个参数为true，即启动shuffle过程。</li>
+</ol>
+<ul>
+<li><strong>A &lt; B（少数分区分解为多数分区）</strong><br>此时使用repartition即可，如果使用coalesce需要将shuffle设置为true，否则coalesce无效。<br>我们可以在filter操作之后，使用coalesce算子针对每个partition的数据量各不相同的情况，压缩partition的数量，而且让每个partition的数据量尽量均匀紧凑，以便于后面的task进行计算操作，在某种程度上能够在一定程度上提升性能。<br>注意：local模式是进程内模拟集群运行，已经对并行度和分区数量有了一定的内部优化，因此不用去设置并行度和分区数量。<h3 id="2-4-算子调优四：repartition解决SparkSQL低并行度问题"><a href="#2-4-算子调优四：repartition解决SparkSQL低并行度问题" class="headerlink" title="2.4 算子调优四：repartition解决SparkSQL低并行度问题"></a>2.4 算子调优四：repartition解决SparkSQL低并行度问题</h3>　　在第一节的常规性能调优中我们讲解了并行度的调节策略，但是，并行度的设置对于Spark SQL是不生效的，用户设置的并行度只对于Spark SQL以外的所有Spark的stage生效。<br>　　Spark SQL的并行度不允许用户自己指定，Spark SQL自己会默认根据hive表对应的HDFS文件的split个数自动设置Spark SQL所在的那个stage的并行度，用户自己通spark.default.parallelism参数指定的并行度，只会在没Spark SQL的stage中生效。<br>　　由于Spark SQL所在stage的并行度无法手动设置，如果数据量较大，并且此stage中后续的transformation操作有着复杂的业务逻辑，而Spark SQL自动设置的task数量很少，这就意味着每个task要处理为数不少的数据量，然后还要执行非常复杂的处理逻辑，这就可能表现为第一个有Spark SQL的stage速度很慢，而后续的没有Spark SQL的stage运行速度非常快。<br>　　为了解决Spark SQL无法设置并行度和task数量的问题，我们可以使用repartition算子。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[HIVE] --&gt;B[分区]</span><br><span class="line">A[HIVE] --&gt;D[分区]</span><br><span class="line">B --&gt; C[tesk]</span><br><span class="line">D --&gt; E[tesk]</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[HIVE] --&gt;B[分区]</span><br><span class="line">A[HIVE] --&gt;C[分区]</span><br><span class="line">B --&gt; D[repartition]</span><br><span class="line">C --&gt; D[repartition]</span><br><span class="line">D --&gt; E[分区]</span><br><span class="line">D --&gt; F[分区]</span><br><span class="line">D --&gt; G[分区]</span><br><span class="line">D --&gt; H[分区]</span><br><span class="line">D --&gt; J[分区]</span><br><span class="line">D --&gt; K[分区]</span><br><span class="line">D --&gt; L[分区]</span><br><span class="line">E --&gt; M[tesk]</span><br><span class="line">F --&gt; N[tesk]</span><br><span class="line">G --&gt; O[tesk]</span><br><span class="line">H --&gt; P[tesk]</span><br><span class="line">J --&gt; Q[tesk]</span><br><span class="line">K --&gt; R[tesk]</span><br><span class="line">L --&gt; S[tesk]</span><br></pre></td></tr></table></figure>
+<p>　　Spark SQL这一步的并行度和task数量肯定是没有办法去改变了，但是，对于Spark SQL查询出来的RDD，立即使用repartition算子，去重新进行分区，这样可以重新分区为多个partition，从repartition之后的RDD操作，由于不再设计Spark SQL，因此stage的并行度就会等于你手动设置的值，这样就避免了Spark SQL所在的stage只能用少量的task去处理大量数据并执行复杂的算法逻辑。</p>
+<h3 id="2-5-算子调优五：reduceByKey预聚合"><a href="#2-5-算子调优五：reduceByKey预聚合" class="headerlink" title="2.5 算子调优五：reduceByKey预聚合"></a>2.5 算子调优五：reduceByKey预聚合</h3><p>　　reduceByKey相较于普通的shuffle操作一个显著的特点就是会进行map端的本地聚合，map端会先对本地的数据进行combine操作，然后将数据写入给下个stage的每个task创建的文件中，也就是在map端，对每一个key对应的value，执行reduceByKey算子函数。reduceByKey算子的执行过程如图所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">A[task1]</span><br><span class="line">B[task2]</span><br><span class="line">    A --&gt; |spark,1 spark,1|D[filter]</span><br><span class="line">    B --&gt; |spark,1 spark,1|F[filter]</span><br><span class="line">    A --&gt; |hadoop,1 hadoop,1|E[filter]</span><br><span class="line">    B --&gt; |hadoop,1 hadoop,1|G[filter]</span><br><span class="line">    D --&gt; |spark,2|H[task]</span><br><span class="line">    F --&gt; |spark,2|H[task]</span><br><span class="line">    E --&gt; |hadoop,2|I[task]</span><br><span class="line">    G --&gt; |hadoop,2|I[task]</span><br></pre></td></tr></table></figure>
+<p>使用reduceByKey对性能的提升如下：</p>
+<ul>
+<li>本地聚合后，在map端的数据量变少，减少了磁盘IO，也减少了对磁盘空间的占用；</li>
+<li>本地聚合后，下一个stage拉取的数据量变少，减少了网络传输的数据量；</li>
+<li>本地聚合后，在reduce端进行数据缓存的内存占用减少；</li>
+<li>本地聚合后，在reduce端进行聚合的数据量减少。<br>　　基于reduceByKey的本地聚合特征，我们应该考虑使用reduceByKey代替其他的shuffle算子，例如groupByKey。<br>　　groupByKey不会进行map端的聚合，而是将所有map端的数据shuffle到reduce端，然后在reduce端进行数据的聚合操作。由于reduceByKey有map端聚合的特性，使得网络传输的数据量减小，因此效率要明显高于groupByKey。<h2 id="Shuffle调优"><a href="#Shuffle调优" class="headerlink" title="Shuffle调优"></a>Shuffle调优</h2><h3 id="3-1-Shuffle调优一：调节map端缓冲区大小"><a href="#3-1-Shuffle调优一：调节map端缓冲区大小" class="headerlink" title="3.1 Shuffle调优一：调节map端缓冲区大小"></a>3.1 Shuffle调优一：调节map端缓冲区大小</h3>　　在Spark任务运行过程中，如果shuffle的map端处理的数据量比较大，但是map端缓冲的大小是固定的，可能会出现map端缓冲数据频繁spill溢写到磁盘文件中的情况，使得性能非常低下，通过调节map端缓冲的大小，可以避免频繁的磁盘IO操作，进而提升Spark任务的整体性能。<br>　　map端缓冲的默认配置是32KB，如果每个task处理640KB的数据，那么会发生640/32 = 20次溢写，如果每个task处理64000KB的数据，机会发生64000/32=2000此溢写，这对于性能的影响是非常严重的。<br>　　map端缓冲的配置方法如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.shuffle.file.buffer&quot;</span>, <span class="string">&quot;64&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-Shuffle调优二：调节reduce端拉取数据缓冲区大小"><a href="#3-2-Shuffle调优二：调节reduce端拉取数据缓冲区大小" class="headerlink" title="3.2 Shuffle调优二：调节reduce端拉取数据缓冲区大小"></a>3.2 Shuffle调优二：调节reduce端拉取数据缓冲区大小</h3>　　Spark Shuffle过程中，shuffle reduce task的buffer缓冲区大小决定了reduce task每次能够缓冲的数据量，也就是每次能够拉取的数据量，如果内存资源较为充足，适当增加拉取数据缓冲区的大小，可以减少拉取数据的次数，也就可以减少网络传输的次数，进而提升性能。<br>reduce端数据拉取缓冲区的大小可以通过spark.reducer.maxSizeInFlight参数进行设置，默认为48MB，该参数的设置方法如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.reducer.maxSizeInFlight&quot;</span>, <span class="string">&quot;96&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-Shuffle调优三：调节reduce端拉取数据重试次数"><a href="#3-3-Shuffle调优三：调节reduce端拉取数据重试次数" class="headerlink" title="3.3 Shuffle调优三：调节reduce端拉取数据重试次数"></a>3.3 Shuffle调优三：调节reduce端拉取数据重试次数</h3>　　Spark Shuffle过程中，reduce task拉取属于自己的数据时，如果因为网络异常等原因导致失败会自动进行重试。对于那些包含了特别耗时的shuffle操作的作业，建议增加重试最大次数（比如60次），以避免由于JVM的full gc或者网络不稳定等因素导致的数据拉取失败。在实践中发现，对于针对超大数据量（数十亿~上百亿）的shuffle过程，调节该参数可以大幅度提升稳定性。<br>　　reduce端拉取数据重试次数可以通过spark.shuffle.io.maxRetries参数进行设置，该参数就代表了可以重试的最大次数。如果在指定次数之内拉取还是没有成功，就可能会导致作业执行失败，默认为3，该参数的设置方法如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.shuffle.io.maxRetries&quot;</span>, <span class="string">&quot;6&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-Shuffle调优四：调节reduce端拉取数据等待间隔"><a href="#3-4-Shuffle调优四：调节reduce端拉取数据等待间隔" class="headerlink" title="3.4 Shuffle调优四：调节reduce端拉取数据等待间隔"></a>3.4 Shuffle调优四：调节reduce端拉取数据等待间隔</h3>　　Spark Shuffle过程中，reduce task拉取属于自己的数据时，如果因为网络异常等原因导致失败会自动进行重试，在一次失败后，会等待一定的时间间隔再进行重试，可以通过加大间隔时长（比如60s），以增加shuffle操作的稳定性。<br>　　reduce端拉取数据等待间隔可以通过spark.shuffle.io.retryWait参数进行设置，默认值为5s，该参数的设置方法如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.shuffle.io.retryWait&quot;</span>, <span class="string">&quot;60s&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-5-Shuffle调优五：调节SortShuffle排序操作阈值"><a href="#3-5-Shuffle调优五：调节SortShuffle排序操作阈值" class="headerlink" title="3.5 Shuffle调优五：调节SortShuffle排序操作阈值"></a>3.5 Shuffle调优五：调节SortShuffle排序操作阈值</h3>　　对于SortShuffleManager，如果shuffle reduce task的数量小于某一阈值则shuffle write过程中不会进行排序操作，而是直接按照未经优化的HashShuffleManager的方式去写数据，但是最后会将每个task产生的所有临时磁盘文件都合并成一个文件，并会创建单独的索引文件。<br>　　当你使用SortShuffleManager时，如果的确不需要排序操作，那么建议将这个参数调大一些，大于shuffle read task的数量，那么此时map-side就不会进行排序了，减少了排序的性能开销，但是这种方式下，依然会产生大量的磁盘文件，因此shuffle write性能有待提高。<br>SortShuffleManager排序操作阈值的设置可以通过spark.shuffle.sort. bypassMergeThreshold这一参数进行设置，默认值为200，该参数的设置方法如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.shuffle.sort.bypassMergeThreshold&quot;</span>, <span class="string">&quot;400&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="JVM调优"><a href="#JVM调优" class="headerlink" title="JVM调优"></a>JVM调优</h2>对于JVM调优，首先应该明确，full gc/minor gc，都会导致JVM的工作线程停止工作，即stop the world。<h3 id="4-1-JVM调优一：降低cache操作的内存占比"><a href="#4-1-JVM调优一：降低cache操作的内存占比" class="headerlink" title="4.1 JVM调优一：降低cache操作的内存占比"></a>4.1 JVM调优一：降低cache操作的内存占比</h3></li>
+</ul>
+<ol>
+<li><pre><code>静态内存管理机制
+</code></pre>
+　　根据Spark静态内存管理机制，堆内存被划分为了两块，Storage和Execution。Storage主要用于缓存RDD数据和broadcast数据，Execution主要用于缓存在shuffle过程中产生的中间数据，Storage占系统内存的60%，Execution占系统内存的20%，并且两者完全独立。<br>　　在一般情况下，Storage的内存都提供给了cache操作，但是如果在某些情况下cache操作内存不是很紧张，而task的算子中创建的对象很多，Execution内存又相对较小，这回导致频繁的minor gc，甚至于频繁的full gc，进而导致Spark频繁的停止工作，性能影响会很大。<br>　　在Spark UI中可以查看每个stage的运行情况，包括每个task的运行时间、gc时间等等，如果发现gc太频繁，时间太长，就可以考虑调节Storage的内存占比，让task执行算子函数式，有更多的内存可以使用。<br>　　Storage内存区域可以通过spark.storage.memoryFraction参数进行指定，默认为0.6，即60%，可以逐级向下递减，如代码清单所示：<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line">  .set(<span class="string">&quot;spark.storage.memoryFraction&quot;</span>, <span class="string">&quot;0.4&quot;</span>)</span><br></pre></td></tr></table></figure></li>
+<li><pre><code>2.     统一内存管理机制
+</code></pre>
+　　根据Spark统一内存管理机制，堆内存被划分为了两块，Storage和Execution。Storage主要用于缓存数据，Execution主要用于缓存在shuffle过程中产生的中间数据，两者所组成的内存部分称为统一内存，Storage和Execution各占统一内存的50%，由于动态占用机制的实现，shuffle过程需要的内存过大时，会自动占用Storage的内存区域，因此无需手动进行调节。<h3 id="4-2-JVM调优二：调节Executor堆外内存"><a href="#4-2-JVM调优二：调节Executor堆外内存" class="headerlink" title="4.2 JVM调优二：调节Executor堆外内存"></a>4.2 JVM调优二：调节Executor堆外内存</h3>　　Executor的堆外内存主要用于程序的共享库、Perm Space、 线程Stack和一些Memory mapping等, 或者类C方式allocate object。<br>　　有时，如果你的Spark作业处理的数据量非常大，达到几亿的数据量，此时运行Spark作业会时不时地报错，例如shuffle output file cannot find，executor lost，task lost，out of memory等，这可能是Executor的堆外内存不太够用，导致Executor在运行的过程中内存溢出。<br>　　stage的task在运行的时候，可能要从一些Executor中去拉取shuffle map output文件，但是Executor可能已经由于内存溢出挂掉了，其关联的BlockManager也没有了，这就可能会报出shuffle output file cannot find，executor lost，task lost，out of memory等错误，此时，就可以考虑调节一下Executor的堆外内存，也就可以避免报错，与此同时，堆外内存调节的比较大的时候，对于性能来讲，也会带来一定的提升。<br>　　默认情况下，Executor堆外内存上限大概为300多MB，在实际的生产环境下，对海量数据进行处理的时候，这里都会出现问题，导致Spark作业反复崩溃，无法运行，此时就会去调节这个参数，到至少1G，甚至于2G、4G。<br>　　Executor堆外内存的配置需要在spark-submit脚本里配置，如代码清单所示：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.yarn.executor.memoryOverhead=2048</span><br></pre></td></tr></table></figure>
+　　以上参数配置完成后，会避免掉某些JVM OOM的异常问题，同时，可以提升整体Spark作业的性能。<h3 id="4-3-JVM调优三：调节连接等待时长"><a href="#4-3-JVM调优三：调节连接等待时长" class="headerlink" title="4.3 JVM调优三：调节连接等待时长"></a>4.3 JVM调优三：调节连接等待时长</h3>　　在Spark作业运行过程中，Executor优先从自己本地关联的BlockManager中获取某份数据，如果本地BlockManager没有的话，会通过TransferService远程连接其他节点上Executor的BlockManager来获取数据。<br>　　如果task在运行过程中创建大量对象或者创建的对象较大，会占用大量的内存，这回导致频繁的垃圾回收，但是垃圾回收会导致工作现场全部停止，也就是说，垃圾回收一旦执行，Spark的Executor进程就会停止工作，无法提供相应，此时，由于没有响应，无法建立网络连接，会导致网络连接超时。<br>　　在生产环境下，有时会遇到file not found、file lost这类错误，在这种情况下，很有可能是Executor的BlockManager在拉取数据的时候，无法建立连接，然后超过默认的连接等待时长60s后，宣告数据拉取失败，如果反复尝试都拉取不到数据，可能会导致Spark作业的崩溃。这种情况也可能会导致DAGScheduler反复提交几次stage，TaskScheduler返回提交几次task，大大延长了我们的Spark作业的运行时间。<br>　　此时，可以考虑调节连接的超时时长，连接等待时长需要在spark-submit脚本中进行设置，设置方式如代码清单所示：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.core.connection.ack.wait.timeout=300</span><br></pre></td></tr></table></figure>
+调节连接等待时长后，通常可以避免部分的XX文件拉取失败、XX文件lost等报错。</li>
+</ol>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><a class="post-meta__tags" href="/tags/spark/">spark</a></div><div class="post_share"><div class="social-share" data-image="https://www.terrapinn-cdn.com/exhibition/spark/img/spark300.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/06/18/hbase/HBase%E5%8D%8F%E5%A4%84%E7%90%86%E5%99%A8%E9%94%99%E8%AF%AF%E8%AE%B0%E5%BD%95/"><img class="prev-cover" src="https://d1.awsstatic.com/product-marketing/EMR/hbase-logo.e139b77f7031062f738f0fc28210e0ffa6ca26c8.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">HBase协处理器错误记录</div></div></a></div><div class="next-post pull-right"><a href="/2020/07/06/azkaban/%E9%82%A3%E4%BA%9B%E5%B9%B4%E8%B5%B0%E8%BF%87%E7%9A%84azkaban%E7%9A%84%E5%9D%91/"><img class="next-cover" src="https://pic4.zhimg.com/2f83ed15b49c0f7d08eb0172948bc938_1440w.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">那些年走过的azkaban的坑</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/05/31/大数据默认端口号汇总/" title="大数据默认端口号汇总"><img class="cover" src="https://pic3.zhimg.com/v2-cbf81528639bc668c05904db2b246d4a_1440w.jpg?source=172ae18b" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-31</div><div class="title">大数据默认端口号汇总</div></div></a></div><div><a href="/2020/03/02/hadoop/Hadoop_Apache_2.7.2_安装教程/" title="Hadoop Apache 2.7.2 安装教程"><img class="cover" src="https://cdn-ssl-devio-img.classmethod.jp/wp-content/uploads/2016/11/hadoop-logo-320x320.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-03-02</div><div class="title">Hadoop Apache 2.7.2 安装教程</div></div></a></div><div><a href="/2020/05/23/spark/groupByKey与ReduceByKey的区别/" title="groupByKey与ReduceByKey的区别"><img class="cover" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Apache_Spark_logo.svg/1200px-Apache_Spark_logo.svg.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-23</div><div class="title">groupByKey与ReduceByKey的区别</div></div></a></div><div><a href="/2020/06/04/spark/spark优雅的关闭/" title="SparkStream优雅的关闭"><img class="cover" src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3090262821,4268003599&fm=26&gp=0.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-06-04</div><div class="title">SparkStream优雅的关闭</div></div></a></div><div><a href="/2020/05/25/spark/spark常用算子总结/" title="spark常用算子总结"><img class="cover" src="https://i.loli.net/2020/06/04/ndT4s9iJcFzf18Z.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-05-25</div><div class="title">spark常用算子总结</div></div></a></div><div><a href="/2020/06/05/spark/spark通信架构/" title="Spark通讯架构"><img class="cover" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595823727593&di=d1242a73c62b4db5f31ef5a97a2e7ad2&imgtype=0&src=http%3A%2F%2Fdpic.tiankong.com%2Ft3%2Fuf%2FQJ8225166615.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-06-05</div><div class="title">Spark通讯架构</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">Spark性能优化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98"><span class="toc-number">1.1.</span> <span class="toc-text">常规性能调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E4%B8%80%EF%BC%9A%E6%9C%80%E4%BC%98%E8%B5%84%E6%BA%90%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 常规性能调优一：最优资源配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E4%BA%8C%EF%BC%9ARDD%E4%BC%98%E5%8C%96"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 常规性能调优二：RDD优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E4%B8%89%EF%BC%9A%E5%B9%B6%E8%A1%8C%E5%BA%A6%E8%B0%83%E8%8A%82"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 常规性能调优三：并行度调节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%9B%9B%EF%BC%9A%E5%B9%BF%E6%92%AD%E5%A4%A7%E5%8F%98%E9%87%8F"><span class="toc-number">1.1.4.</span> <span class="toc-text">1.4 常规性能调优四：广播大变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E4%BA%94%EF%BC%9AKryo%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.1.5.</span> <span class="toc-text">1.5 常规性能调优五：Kryo序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-%E5%B8%B8%E8%A7%84%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E5%85%AD%EF%BC%9A%E8%B0%83%E8%8A%82%E6%9C%AC%E5%9C%B0%E5%8C%96%E7%AD%89%E5%BE%85%E6%97%B6%E9%95%BF"><span class="toc-number">1.1.6.</span> <span class="toc-text">1.6 常规性能调优六：调节本地化等待时长</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98"><span class="toc-number">1.2.</span> <span class="toc-text">算子调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98%E4%B8%80%EF%BC%9AmapPartitions"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 算子调优一：mapPartitions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98%E4%BA%8C%EF%BC%9AforeachPartition%E4%BC%98%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 算子调优二：foreachPartition优化数据库操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98%E4%B8%89%EF%BC%9Afilter%E4%B8%8Ecoalesce%E7%9A%84%E9%85%8D%E5%90%88%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 算子调优三：filter与coalesce的配合使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98%E5%9B%9B%EF%BC%9Arepartition%E8%A7%A3%E5%86%B3SparkSQL%E4%BD%8E%E5%B9%B6%E8%A1%8C%E5%BA%A6%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.4.</span> <span class="toc-text">2.4 算子调优四：repartition解决SparkSQL低并行度问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E7%AE%97%E5%AD%90%E8%B0%83%E4%BC%98%E4%BA%94%EF%BC%9AreduceByKey%E9%A2%84%E8%81%9A%E5%90%88"><span class="toc-number">1.2.5.</span> <span class="toc-text">2.5 算子调优五：reduceByKey预聚合</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shuffle%E8%B0%83%E4%BC%98"><span class="toc-number">1.3.</span> <span class="toc-text">Shuffle调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Shuffle%E8%B0%83%E4%BC%98%E4%B8%80%EF%BC%9A%E8%B0%83%E8%8A%82map%E7%AB%AF%E7%BC%93%E5%86%B2%E5%8C%BA%E5%A4%A7%E5%B0%8F"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 Shuffle调优一：调节map端缓冲区大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Shuffle%E8%B0%83%E4%BC%98%E4%BA%8C%EF%BC%9A%E8%B0%83%E8%8A%82reduce%E7%AB%AF%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E5%A4%A7%E5%B0%8F"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 Shuffle调优二：调节reduce端拉取数据缓冲区大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Shuffle%E8%B0%83%E4%BC%98%E4%B8%89%EF%BC%9A%E8%B0%83%E8%8A%82reduce%E7%AB%AF%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 Shuffle调优三：调节reduce端拉取数据重试次数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Shuffle%E8%B0%83%E4%BC%98%E5%9B%9B%EF%BC%9A%E8%B0%83%E8%8A%82reduce%E7%AB%AF%E6%8B%89%E5%8F%96%E6%95%B0%E6%8D%AE%E7%AD%89%E5%BE%85%E9%97%B4%E9%9A%94"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 Shuffle调优四：调节reduce端拉取数据等待间隔</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Shuffle%E8%B0%83%E4%BC%98%E4%BA%94%EF%BC%9A%E8%B0%83%E8%8A%82SortShuffle%E6%8E%92%E5%BA%8F%E6%93%8D%E4%BD%9C%E9%98%88%E5%80%BC"><span class="toc-number">1.3.5.</span> <span class="toc-text">3.5 Shuffle调优五：调节SortShuffle排序操作阈值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM%E8%B0%83%E4%BC%98"><span class="toc-number">1.4.</span> <span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-JVM%E8%B0%83%E4%BC%98%E4%B8%80%EF%BC%9A%E9%99%8D%E4%BD%8Ecache%E6%93%8D%E4%BD%9C%E7%9A%84%E5%86%85%E5%AD%98%E5%8D%A0%E6%AF%94"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1 JVM调优一：降低cache操作的内存占比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-JVM%E8%B0%83%E4%BC%98%E4%BA%8C%EF%BC%9A%E8%B0%83%E8%8A%82Executor%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2 JVM调优二：调节Executor堆外内存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-JVM%E8%B0%83%E4%BC%98%E4%B8%89%EF%BC%9A%E8%B0%83%E8%8A%82%E8%BF%9E%E6%8E%A5%E7%AD%89%E5%BE%85%E6%97%B6%E9%95%BF"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3 JVM调优三：调节连接等待时长</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2022 By Bryce-Loski</div><div class="footer_custom_text">Hi,this is bryce blog!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'gXnAgz5vfSj3tVngbMkf6AUg-gzGzoHsz',
+      appKey: '9sjPOmBH9q99tqRsfItg6Ou9',
+      placeholder: '有问题记得留下mail',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (false) { 
+      initData.requiredFields= (''.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign(initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script></div></body></html>
